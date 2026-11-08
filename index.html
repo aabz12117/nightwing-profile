@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BODI</title>
+  <meta property="og:title" content="𝓑𝓞𝓓𝑰 (@b0_9)">
+  <meta property="og:description" content="He can keep his tongue...">
+  <meta name="theme-color" content="#101114">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=Orbitron:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page-glow glow-one"></div><div class="page-glow glow-two"></div>
+  <main class="profile-layout"><article class="profile-card">
+    <div id="banner" class="banner" aria-hidden="true"></div>
+    <div class="card-body">
+      <header class="profile-header">
+        <div class="avatar-wrap"><img id="avatar" class="avatar" src="" alt="Profile avatar"><span id="status" class="status-indicator offline" aria-label="Discord status"></span></div>
+        <div class="profile-title"><div class="name-row"><h1 id="name"></h1><sup id="name-suffix" aria-label="2"></sup><div id="badges" class="badges" aria-label="Profile badges"></div></div><div class="account-meta"><p id="username"></p><p id="pronouns" class="pronouns" hidden></p><div id="profile-tag" class="profile-tag" hidden></div></div></div>
+        <div class="actions"><a id="btn-message" class="button primary" target="_blank" rel="noreferrer"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i><span>SEND A SIGNAL</span></a><button id="btn-copy" class="button icon-button" type="button" aria-label="Copy username"><i class="fa-regular fa-copy"></i></button></div>
+      </header>
+      <section class="about-section"><h2 class="section-label">ABOUT ME</h2><p id="bio" class="bio"></p><p id="identity" class="identity" hidden></p><div id="custom-status" class="custom-status" hidden><span id="cs-emoji"></span><span id="cs-text"></span></div></section>
+
+      <footer class="profile-footer"><div class="member-since"><span>Member since</span><strong id="member-since"></strong></div><div class="visitor-count" aria-label="Unique visitors" title="Unique visitors"><i class="fa-solid fa-eye" aria-hidden="true"></i><span id="visitor-count">—</span></div><nav id="connections" class="connections" aria-label="Social links"></nav></footer>
+    </div>
+  </article><aside class="activity-panel"><div class="panel-heading"><span>Activity</span><i class="fa-solid fa-film" aria-hidden="true"></i></div><p class="section-label">Current activity</p>      <section id="activity-card" class="activity-card" hidden><p id="activity-title" class="eyebrow"></p><div class="activity-content"><img id="activity-img" src="" alt=""><div><h2 id="activity-name"></h2><p id="activity-artist"></p><div id="watching-timer" class="watching-timer" hidden><i class="fa-solid fa-display" aria-hidden="true"></i><span id="watching-elapsed" aria-label="Time since opening this page">0:00</span></div></div><span class="live-dot" aria-hidden="true"></span></div></section><div class="nightwing-signature"><img class="nightwing-logo" src="logo.png" alt=""><p class="activity-note">NIGHTWING</p></div></aside></main>
+  <div id="toast" class="toast" role="status"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i><span>SIGNAL COPIED</span></div>
+  <script src="config.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const setText = (selector, value) => {
+        const element = document.querySelector(selector);
+        if (!element || !value) return;
+        element.textContent = value;
+        element.hidden = false;
+      };
+
+      setText("#pronouns", config.pronouns);
+      setText("#name-suffix", config.nameSuffix);
+      if (config.tag) {
+        const tag = document.querySelector("#profile-tag");
+        const icon = document.createElement(config.tag.icon === "saudi-emblem" ? "img" : "i");
+        const label = document.createElement("span");
+        if (config.tag.icon === "saudi-emblem") {
+          icon.src = "https://upload.wikimedia.org/wikipedia/commons/9/99/Emblem_of_Saudi_Arabia.svg";
+          icon.alt = "";
+        } else {
+          icon.className = config.tag.icon;
+          icon.setAttribute("aria-hidden", "true");
+        }
+        label.textContent = config.tag.name;
+        tag.replaceChildren(icon, label);
+        tag.style.color = config.tag.color;
+        tag.style.background = config.tag.background;
+        tag.style.borderColor = config.tag.border;
+        tag.hidden = false;
+      }
+
+      if (config.presence) {
+        const status = document.querySelector("#status");
+        const custom = document.querySelector("#custom-status");
+        const username = document.querySelector("#username");
+        const setUsername = () => {
+          if (username.textContent !== config.username) username.textContent = config.username;
+        };
+        const applyPresence = () => {
+          const className = `status-indicator ${config.presence.status || "offline"}`;
+          if (status.className !== className) status.className = className;
+          status.tabIndex = config.presence.status === "dnd" ? 0 : -1;
+          status.setAttribute("aria-label", `Discord status: ${config.presence.status || "offline"}`);
+          const customIcon = document.querySelector("#cs-emoji");
+          customIcon.replaceChildren();
+          if (config.presence.customIcon) {
+            const image = document.createElement("img");
+            image.src = config.presence.customIcon;
+            image.alt = "";
+            customIcon.append(image);
+          }
+          document.querySelector("#cs-text").textContent = config.presence.customStatus || "";
+          custom.hidden = !config.presence.customStatus;
+        };
+        applyPresence();
+        setUsername();
+        new MutationObserver(applyPresence).observe(status, { attributes: true, attributeFilter: ["class"] });
+        new MutationObserver(applyPresence).observe(custom, { attributes: true, attributeFilter: ["hidden"] });
+        new MutationObserver(setUsername).observe(username, { childList: true, characterData: true, subtree: true });
+      }
+    });
+  </script>
+  <script src="script.js"></script><script src="visit-notification.js" defer></script><script src="visitor-count.js" defer></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
